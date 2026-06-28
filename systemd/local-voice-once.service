@@ -1,0 +1,9 @@
+[Unit]
+Description=Local Voice one-shot assistant
+After=network-online.target local-voice-gemma.service
+Wants=network-online.target local-voice-gemma.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/pi/local-voice-assistant
+ExecStart=/home/pi/local-voice-assistant/scripts/run_voice_once.sh --no-playback --record-seconds 5 --work-dir /tmp/local-voice

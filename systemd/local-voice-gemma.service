@@ -1,0 +1,18 @@
+[Unit]
+Description=Local Voice Gemma llama.cpp server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/local-voice-assistant
+Environment=LOCAL_ALEXA_MODEL=bartowski/google_gemma-3-270m-it-GGUF:Q4_K_M
+Environment=LOCAL_ALEXA_THREADS=4
+Environment=LOCAL_ALEXA_CONTEXT=1024
+Environment=LOCAL_ALEXA_LLM_PORT=8080
+ExecStart=/home/pi/local-voice-assistant/scripts/run_gemma_server.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
