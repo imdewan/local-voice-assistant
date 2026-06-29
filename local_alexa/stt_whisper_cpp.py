@@ -46,7 +46,10 @@ def _find_whisper_binary() -> Path:
     local = Path("vendor/whisper.cpp/build/bin/whisper-cli")
     if local.exists():
         return local
-    raise FileNotFoundError("whisper-cli not found. Run ./scripts/build_whisper_cpp.sh.")
+    prebuilt = next(Path("vendor/whisper.cpp-prebuilt").glob("**/whisper-cli"), None)
+    if prebuilt is not None and prebuilt.exists():
+        return prebuilt
+    raise FileNotFoundError("whisper-cli not found. Run ./scripts/download_whisper_cpp.sh.")
 
 
 def _clean_whisper_output(output: str) -> str:

@@ -31,11 +31,15 @@ git clone <this-project-url> local-voice-assistant
 cd local-voice-assistant
 ./scripts/install_pi.sh
 ./scripts/install_kittentts.sh
-./scripts/build_llama_cpp.sh
-./scripts/build_whisper_cpp.sh
+./scripts/download_llama_cpp.sh
+./scripts/download_whisper_cpp.sh
 ./scripts/download_whisper_tiny_en.sh
 ./scripts/download_openwakeword_models.sh
 ```
+
+The Pi setup does not need npm. If something asks for npm, it is not part of this assistant path.
+
+Use Raspberry Pi OS 64-bit with Python 3.10, 3.11, or 3.12. Raspberry Pi OS Bookworm's Python 3.11 is the best target. Python 3.13 currently breaks KittenTTS/misaki installs.
 
 Start Gemma in terminal 1:
 
@@ -149,5 +153,7 @@ Variables:
 - llama.cpp threads: `4`
 - Wake detector: one openWakeWord model
 - STT: Whisper tiny.en only after wake
+
+Use `./scripts/download_llama_cpp.sh` on the Pi. `./scripts/build_llama_cpp.sh` is kept as a fallback, but it uses one build job by default because parallel C++ compilation can run the Pi 3B+ out of RAM.
 
 If Gemma is too slow on the Pi, keep the Pi as the mic/speaker satellite and run the llama.cpp server on a stronger local LAN machine.

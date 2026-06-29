@@ -12,9 +12,14 @@ if command -v llama-server >/dev/null 2>&1; then
   exec llama-server -hf "$MODEL_REF" -t "$THREADS" -c "$CONTEXT" --port "$PORT"
 fi
 
+PREBUILT_LLAMA_SERVER="$(find ./vendor/llama.cpp-prebuilt -type f -name llama-server -perm -111 2>/dev/null | head -n 1)"
+if [ -n "$PREBUILT_LLAMA_SERVER" ]; then
+  exec "$PREBUILT_LLAMA_SERVER" -hf "$MODEL_REF" -t "$THREADS" -c "$CONTEXT" --port "$PORT"
+fi
+
 LLAMA_SERVER="./vendor/llama.cpp/build/bin/llama-server"
 if [ ! -x "$LLAMA_SERVER" ]; then
-  echo "llama-server not found. Run ./scripts/build_llama_cpp.sh first." >&2
+  echo "llama-server not found. Run ./scripts/download_llama_cpp.sh first." >&2
   exit 1
 fi
 

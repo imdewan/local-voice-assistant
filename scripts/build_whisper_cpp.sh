@@ -11,6 +11,7 @@ else
 fi
 
 cmake -S vendor/whisper.cpp -B vendor/whisper.cpp/build -DCMAKE_BUILD_TYPE=Release
-cmake --build vendor/whisper.cpp/build --config Release -j"$(getconf _NPROCESSORS_ONLN)" --target whisper-cli
+JOBS="${JOBS:-1}"
+cmake --build vendor/whisper.cpp/build --config Release -j"$JOBS" --target whisper-cli
 
 echo "Built whisper.cpp at vendor/whisper.cpp/build/bin/whisper-cli"

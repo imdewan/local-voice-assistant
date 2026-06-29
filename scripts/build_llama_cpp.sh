@@ -11,7 +11,7 @@ else
 fi
 
 cmake -S vendor/llama.cpp -B vendor/llama.cpp/build -DCMAKE_BUILD_TYPE=Release
-cmake --build vendor/llama.cpp/build --config Release -j"$(getconf _NPROCESSORS_ONLN)" --target llama-server llama-cli
+JOBS="${JOBS:-1}"
+cmake --build vendor/llama.cpp/build --config Release -j"$JOBS" --target llama-server llama-cli
 
 echo "Built llama.cpp at vendor/llama.cpp/build/bin"
-
