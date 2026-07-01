@@ -13,12 +13,13 @@ class LLMClientError(RuntimeError):
 
 
 def complete_chat(user_text: str, settings: Settings) -> str:
-    endpoint = f"{settings.base_url}/chat/completions"
+    endpoint = f"{settings.base_url}/completions"
     payload = {
         "model": settings.model,
-        "messages": [{"role": "user", "content": user_text}],
+        "prompt": f"Answer briefly for voice.\nUser: {user_text.strip()}\nAssistant:",
         "temperature": 0.4,
         "max_tokens": 80,
+        "stop": ["\nUser:", "\nAssistant:"],
         "stream": False,
     }
     body = json.dumps(payload).encode("utf-8")
@@ -40,7 +41,7 @@ def complete_chat(user_text: str, settings: Settings) -> str:
 
     data = json.loads(raw)
     try:
-        return data["choices"][0]["message"]["content"]
+        return data["choices"][0]["text"]
     except (KeyError, IndexError, TypeError) as exc:
         raise LLMClientError(f"Unexpected LLM response: {raw}") from exc
 
