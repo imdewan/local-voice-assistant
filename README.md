@@ -31,8 +31,10 @@ git clone <this-project-url> local-voice-assistant
 cd local-voice-assistant
 ./scripts/install_pi.sh
 ./scripts/install_kittentts.sh
-./scripts/enable_build_swap.sh
-./scripts/build_llama_cpp.sh
+./scripts/download_llama_cpp.sh || {
+  ./scripts/enable_build_swap.sh
+  ./scripts/build_llama_cpp.sh
+}
 ./scripts/download_whisper_cpp.sh
 ./scripts/download_whisper_tiny_en.sh
 ./scripts/download_openwakeword_models.sh
@@ -40,9 +42,9 @@ cd local-voice-assistant
 
 The Pi setup does not need npm. If something asks for npm, it is not part of this assistant path.
 
-Use Raspberry Pi OS 64-bit with Python 3.10, 3.11, or 3.12. Raspberry Pi OS Bookworm's Python 3.11 is the best target. Python 3.13 currently breaks KittenTTS/misaki installs.
+Use a 64-bit Raspberry Pi OS/Debian image. KittenTTS/misaki needs Python 3.10, 3.11, or 3.12; if the OS only has Python 3.13, the install script uses `uv` to create a Python 3.12 `.venv`.
 
-`llama.cpp` is built locally on Raspberry Pi OS because the current official Ubuntu arm64 prebuilt binaries require newer glibc/libstdc++ than Raspberry Pi OS Bookworm provides. The build uses one job by default, and `enable_build_swap.sh` prevents the Pi 3B+ from killing `cc1plus` due to low RAM.
+`download_llama_cpp.sh` tries the official Ubuntu arm64 `llama.cpp` prebuilt first and self-tests it. Debian 13/trixie can use that prebuilt; Raspberry Pi OS Bookworm may need the local build fallback because its glibc/libstdc++ can be older. The build uses one job by default, and `enable_build_swap.sh` prevents the Pi 3B+ from killing `cc1plus` due to low RAM.
 
 Start Gemma in terminal 1:
 
@@ -157,7 +159,7 @@ Variables:
 - Wake detector: one openWakeWord model
 - STT: Whisper tiny.en only after wake
 
-Use `./scripts/build_llama_cpp.sh` on Raspberry Pi OS. It uses one build job by default because parallel C++ compilation can run the Pi 3B+ out of RAM. `./scripts/download_llama_cpp.sh` is kept for newer glibc systems such as Ubuntu 24.04 arm64; it self-tests the binary and tells you to build if the prebuilt is incompatible.
+Use `./scripts/download_llama_cpp.sh` first. If it says the prebuilt is incompatible, run `./scripts/enable_build_swap.sh` and `./scripts/build_llama_cpp.sh`. The build uses one job by default because parallel C++ compilation can run the Pi 3B+ out of RAM.
 
 Alpine Linux ARM64 is not a good full target for this project. The official `llama.cpp` Ubuntu arm64 prebuilt is glibc-linked and fails on Alpine even with compatibility packages. The `whisper.cpp` arm64 prebuilt does run on Alpine with `gcompat`, but the full assistant target should stay Raspberry Pi OS/Debian-based.
 

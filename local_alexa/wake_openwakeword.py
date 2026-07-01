@@ -10,6 +10,15 @@ import numpy as np
 
 DEFAULT_WAKE_MODEL = "hey_jarvis"
 
+BUILTIN_WAKE_MODELS = {
+    "alexa": "alexa_v0.1.onnx",
+    "hey_jarvis": "hey_jarvis_v0.1.onnx",
+    "hey_marvin": "hey_marvin_v0.1.onnx",
+    "hey_mycroft": "hey_mycroft_v0.1.onnx",
+    "timer": "timer_v0.1.onnx",
+    "weather": "weather_v0.1.onnx",
+}
+
 
 @dataclass(frozen=True)
 class WakeResult:
@@ -34,8 +43,9 @@ class OpenWakeWordDetector:
         self.threshold = threshold
         self.model_name = str(wake_model)
         model_ref = _resolve_wake_model(wake_model)
-        self.model = Model(
-            wakeword_models=[str(model_ref)],
+        self.model = _make_model(
+            Model,
+            model_ref,
             inference_framework=inference_framework,
             vad_threshold=vad_threshold,
         )
@@ -89,7 +99,44 @@ def _resolve_wake_model(wake_model: str | Path) -> str | Path:
     path = Path(wake_model)
     if path.exists():
         return path
+    packaged_model = _packaged_model_path(str(wake_model))
+    if packaged_model is not None:
+        return packaged_model
     return str(wake_model)
+
+
+def _packaged_model_path(model_name: str) -> Path | None:
+    model_file = BUILTIN_WAKE_MODELS.get(model_name)
+    if model_file is None:
+        return None
+    try:
+        import openwakeword
+    except ImportError:
+        return None
+    package_root = Path(openwakeword.__file__).resolve().parent
+    candidate = package_root / "resources" / "models" / model_file
+    return candidate if candidate.exists() else None
+
+
+def _make_model(Model, model_ref: str | Path, *, inference_framework: str, vad_threshold: float):
+    attempts = (
+        {
+            "wakeword_models": [str(model_ref)],
+            "inference_framework": inference_framework,
+            "vad_threshold": vad_threshold,
+        },
+        {
+            "wakeword_model_paths": [str(model_ref)],
+            "vad_threshold": vad_threshold,
+        },
+    )
+    last_error: TypeError | None = None
+    for kwargs in attempts:
+        try:
+            return Model(**kwargs)
+        except TypeError as exc:
+            last_error = exc
+    raise RuntimeError("Unsupported openWakeWord Model API.") from last_error
 
 
 def _best_score(scores: dict[str, float]) -> tuple[str, float]:
