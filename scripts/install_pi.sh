@@ -11,6 +11,7 @@ sudo apt install -y \
   curl \
   build-essential \
   cmake \
+  libcurl4-openssl-dev \
   python3 \
   python3-venv \
   python3-pip \

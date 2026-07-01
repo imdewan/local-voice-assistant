@@ -49,4 +49,15 @@ if [ -z "$LLAMA_SERVER" ]; then
   exit 1
 fi
 
+if ! "$LLAMA_SERVER" --version >/dev/null 2>vendor/downloads/llama_cpp_prebuilt_error.txt; then
+  echo "Downloaded llama.cpp prebuilt binary, but it is not compatible with this OS." >&2
+  echo "Details:" >&2
+  sed -n '1,12p' vendor/downloads/llama_cpp_prebuilt_error.txt >&2
+  echo "" >&2
+  echo "On Raspberry Pi OS Bookworm, use:" >&2
+  echo "  ./scripts/enable_build_swap.sh" >&2
+  echo "  ./scripts/build_llama_cpp.sh" >&2
+  exit 1
+fi
+
 echo "Installed prebuilt llama.cpp: $LLAMA_SERVER"
