@@ -19,6 +19,11 @@ fi
 
 PREBUILT_LLAMA_SERVER="$(find ./vendor/llama.cpp-prebuilt -type f -name llama-server -perm -111 2>/dev/null | head -n 1)"
 if [ -n "$PREBUILT_LLAMA_SERVER" ]; then
+  if ! "$PREBUILT_LLAMA_SERVER" --version >/dev/null 2>vendor/downloads/llama_cpp_prebuilt_error.txt; then
+    echo "Found a prebuilt llama-server, but it is not compatible with this OS." >&2
+    echo "Run ./scripts/enable_build_swap.sh and ./scripts/build_llama_cpp.sh instead." >&2
+    exit 1
+  fi
   exec "$PREBUILT_LLAMA_SERVER" -hf "$MODEL_REF" -t "$THREADS" -c "$CONTEXT" --port "$PORT"
 fi
 

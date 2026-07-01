@@ -50,6 +50,7 @@ if [ -z "$LLAMA_SERVER" ]; then
 fi
 
 if ! "$LLAMA_SERVER" --version >/dev/null 2>vendor/downloads/llama_cpp_prebuilt_error.txt; then
+  rm -rf vendor/llama.cpp-prebuilt
   echo "Downloaded llama.cpp prebuilt binary, but it is not compatible with this OS." >&2
   echo "Details:" >&2
   sed -n '1,12p' vendor/downloads/llama_cpp_prebuilt_error.txt >&2
